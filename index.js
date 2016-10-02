@@ -12,33 +12,46 @@ var test = require('gulp-if');
 var ignore = require('gulp-ignore');
 var getFileSize = require("filesize");
 
+var task = elixir.Task;
+var config = elixir.config;
+
+
 var _ = require('lodash');
 
-elixir.extend('bower', function(options) {
+elixir.extend('bower', function (options) {
 
-    var config = this;
-    
     var options = _.merge({
         debugging: false,
         css: {
+            minify : true,
             file: 'vendor.css',
-            output: config.cssOutput
+            output: config.css.outputFolder ? config.publicPath + '/' + config.css.outputFolder : config.publicPath + '/css'
         },
         js: {
+            uglify : true,
             file: 'vendor.js',
-            output: config.jsOutput
+            output: config.js.outputFolder ? config.publicPath + '/' + config.js.outputFolder : config.publicPath + '/js'
         },
         font: {
-            output: 'public/fonts'
+            output: (config.font && config.font.outputFolder) ? config.publicPath + '/' + config.font.outputFolder : config.publicPath + '/fonts'
         },
         img: {
-            output: 'public/imgs',
-            extInline: [ 'gif', 'png'],
+            output: (config.img && config.img.outputFolder) ? config.publicPath + '/' + config.img.outputFolder : config.publicPath + '/imgs',
+            extInline: ['gif', 'png'],
             maxInlineSize: 32 * 1024 //max 32k on ie8
         }
     }, options);
 
-    gulp.task('bower', ['bower-css', 'bower-js', 'bower-fonts', 'bower-imgs']);
+    var files = [];
+
+    if(options.css  !== false) files.push('bower-css');
+    if(options.js   !== false) files.push('bower-js');
+    if(options.font !== false) files.push('bower-fonts');
+    if(options.img  !== false) files.push('bower-imgs');
+
+    new task('bower', function () {
+        return gulp.start(files);
+    });
 
     gulp.task('bower-css', function () {
         var onError = function (err) {
@@ -61,7 +74,7 @@ elixir.extend('bower', function(options) {
                 debug: options.debugging,
             })))
             .pipe(concat(options.css.file))
-            .pipe(minify())
+            .pipe(test(options.css.minify,minify()))
             .pipe(gulp.dest(options.css.output))
             .pipe(notify({
                 title: 'Laravel Elixir',
@@ -89,7 +102,7 @@ elixir.extend('bower', function(options) {
             .on('error', onError)
             .pipe(filter('**/*.js'))
             .pipe(concat(options.js.file))
-            .pipe(uglify())
+            .pipe(test(options.js.uglify,uglify()))
             .pipe(gulp.dest(options.js.output))
             .pipe(notify({
                 title: 'Laravel Elixir',
@@ -172,8 +185,5 @@ elixir.extend('bower', function(options) {
             }));
 
     });
-    
-
-    return this.queueTask('bower');
 
 });
