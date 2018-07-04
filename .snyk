@@ -10,3 +10,6 @@ patch:
         patched: '2018-06-26T06:06:23.390Z'
     - gulp-base64 > request > form-data > mime:
         patched: '2018-06-26T06:06:23.390Z'
+  'npm:http-signature:20150122':
+    - gulp-base64 > request > http-signature:
+        patched: '2018-07-03T06:11:36.916Z'
