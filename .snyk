@@ -27,3 +27,6 @@ patch:
   'npm:request:20160119':
     - gulp-base64 > request:
         patched: '2021-03-19T09:26:51.076Z'
+  'npm:qs:20140806':
+    - gulp-base64 > request > qs:
+        patched: '2021-03-19T10:27:30.036Z'
